@@ -1,4 +1,9 @@
-import { test, expect, type APIRequestContext } from "@playwright/test";
+import {
+  test,
+  expect,
+  type APIRequestContext,
+  type Page,
+} from "@playwright/test";
 import { searchCatalogItems } from "../src/lib/item-search";
 
 const ITEM_SEARCH_FIXTURES = [
@@ -116,6 +121,11 @@ async function saveEnabledDiscordSettings(request: APIRequestContext) {
   });
 
   await expect(response).toBeOK();
+}
+
+async function selectFirstItemSuggestion(page: Page, query: string) {
+  await page.locator('input[name="itemSlug"]').fill(query);
+  await page.getByTestId("item-search-option-0").click();
 }
 
 test.describe("Warframe Market Tracker Dashboard", () => {
@@ -1276,14 +1286,13 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   test("can create a new rule and view market data", async ({ page }) => {
     await page.goto("/");
 
-    const slugInput = page.locator('input[name="itemSlug"]');
     const priceInput = page.locator('input[name="maxPlatinum"]');
     const submitBtn = page.locator('button[type="submit"]');
 
     await expect(submitBtn).toHaveAttribute("aria-label", "Create watch rule");
     await expect(submitBtn).toHaveText("+");
 
-    await slugInput.fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await priceInput.fill("10");
     await submitBtn.click();
 
@@ -1302,7 +1311,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   test("links the active item header to Warframe Market", async ({ page }) => {
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -1480,7 +1489,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     });
 
     await page.goto("/");
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("20");
     await page.locator('button[type="submit"]').click();
 
@@ -1845,7 +1854,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -1971,7 +1980,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   }) => {
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("primed_continuity");
+    await selectFirstItemSuggestion(page, "primed_continuity");
     await page.locator('input[name="maxPlatinum"]').fill("35");
     await page.locator('button[type="submit"]').click();
 
@@ -1996,7 +2005,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   }) => {
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -2185,7 +2194,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   }) => {
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -2217,7 +2226,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   test("deletes a rule after confirmation", async ({ page }) => {
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -2421,7 +2430,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await themeToggle.click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -2779,7 +2788,6 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await page.goto("/");
 
-    const slugInput = page.locator('input[name="itemSlug"]');
     const priceInput = page.locator('input[name="maxPlatinum"]');
     const submitBtn = page.locator('button[type="submit"]');
     const createResponse = page.waitForResponse(
@@ -2788,7 +2796,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
         response.request().method() === "POST",
     );
 
-    await slugInput.fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await priceInput.fill("10");
     await submitBtn.click();
 
@@ -2822,7 +2830,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await page.goto("/");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
@@ -2853,11 +2861,10 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await page.goto("/");
 
-    const slugInput = page.locator('input[name="itemSlug"]');
     const priceInput = page.locator('input[name="maxPlatinum"]');
     const submitBtn = page.locator('button[type="submit"]');
 
-    await slugInput.fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await priceInput.fill("12abc");
     await expect(priceInput).toHaveValue("12");
 
@@ -2885,7 +2892,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await expect(createPriceInput).toHaveAttribute("inputmode", "numeric");
     await expect(createPriceInput).toHaveAttribute("pattern", "[0-9]*");
 
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await createPriceInput.fill("12abc$%34");
     await expect(createPriceInput).toHaveValue("1234");
 
@@ -3619,8 +3626,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await page.goto("/");
 
     await page.getByTestId("panel-toggle-rules").click();
-    await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
-    await page.getByTestId("item-search-option-0").click();
+    await selectFirstItemSuggestion(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
