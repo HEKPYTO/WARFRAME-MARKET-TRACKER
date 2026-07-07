@@ -26,6 +26,7 @@ services:
       APP_SECRETS_MASTER_KEY: ${APP_SECRETS_MASTER_KEY}
       ENABLE_DEV_RESET: "true"
       HOST: 0.0.0.0
+      INTERNAL_ORIGIN: http://127.0.0.1:3000
       NODE_ENV: test
       PORT: "3000"
       SKIP_MARKET_VALIDATION: "true"

@@ -66,6 +66,7 @@ Important environment variables:
 | `DATABASE_URL`           | PostgreSQL connection string.                                         |
 | `APP_SECRETS_MASTER_KEY` | Base64-encoded 32-byte key used to encrypt stored Discord bot tokens. |
 | `APP_BASE_URL`           | Public base URL used in generated links.                              |
+| `INTERNAL_ORIGIN`        | Server-side loopback origin for SSR API calls.                        |
 | `MARKET_API_BASE_URL`    | Warframe Market API base URL.                                         |
 | `MARKET_LANGUAGE`        | Marketplace language, usually `en`.                                   |
 | `MARKET_PLATFORM`        | Marketplace platform, usually `pc`.                                   |
