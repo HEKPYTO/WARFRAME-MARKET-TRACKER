@@ -138,6 +138,10 @@ async function selectItemByKeyboard(page: Page, query: string) {
   await expect(input).toHaveValue(expectedName);
 }
 
+async function openRuleBySlug(page: Page, itemSlug: string) {
+  await page.locator(`[data-rule-slug="${itemSlug}"]`).click();
+}
+
 test.describe("Warframe Market Tracker Dashboard", () => {
   test("renders the stored theme cookie on the server to prevent flash", async ({
     request,
@@ -1313,6 +1317,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
       "title",
       "Remove rule",
     );
+    await openRuleBySlug(page, "arcane_barrier");
     await expect(page.getByTestId("market-panel")).toContainText(
       "Arcane Barrier",
     );
@@ -1324,6 +1329,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await selectItemByKeyboard(page, "arcane_barrier");
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
+    await openRuleBySlug(page, "arcane_barrier");
 
     const marketUrl = "https://warframe.market/items/arcane_barrier";
     const itemLink = page.getByTestId("market-header-item-link");
@@ -2035,6 +2041,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
       .click();
 
     await expect(page.getByTestId("watchlist-panel")).toContainText("≤ 40p");
+    await openRuleBySlug(page, "arcane_barrier");
     await expect(page.getByTestId("market-panel")).toContainText("40p");
   });
 
@@ -2187,6 +2194,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await page.goto("/");
 
     const marketPanel = page.getByTestId("market-panel");
+    await openRuleBySlug(page, "arcane_barrier");
     await expect(marketPanel).toContainText("Arcane Barrier");
 
     const dragSource = page.locator(
@@ -2355,7 +2363,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await expect(deleteTooltip).toBeVisible();
     await expect(deleteTooltip).toHaveText("Delete alert");
 
-    await page.getByText("Primed Continuity").click();
+    await openRuleBySlug(page, "primed_continuity");
     await expect(marketPanel).toContainText("Primed Continuity");
 
     await viewButton.click();
@@ -2865,8 +2873,22 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await page.route("**/api/watch-rules", async (route) => {
       createPayload = route.request().postDataJSON() as Record<string, unknown>;
-      const response = await route.fetch();
-      await route.fulfill({ response });
+      await route.fulfill({
+        body: JSON.stringify({
+          createdAt: "2026-03-30T00:00:00.000Z",
+          crossplay: true,
+          enabled: true,
+          id: "rule-created-without-threshold",
+          itemSlug: "arcane_barrier",
+          maxPlatinum: 0,
+          platform: "pc",
+          sortOrder: 1,
+          updatedAt: "2026-03-30T00:00:00.000Z",
+          userId: "local-demo-user",
+        }),
+        contentType: "application/json",
+        status: 201,
+      });
     });
 
     await page.goto("/");
