@@ -6,10 +6,21 @@ COMPOSE_PROJECT_NAME="warframe-market-tracker-e2e"
 COMPOSE_FILES=(-f "$ROOT_DIR/compose.e2e.yaml")
 
 cleanup() {
+  local status=$?
+
+  if [ "$status" -ne 0 ]; then
+    docker compose \
+      -p "$COMPOSE_PROJECT_NAME" \
+      "${COMPOSE_FILES[@]}" \
+      logs --no-color web postgres || true
+  fi
+
   docker compose \
     -p "$COMPOSE_PROJECT_NAME" \
     "${COMPOSE_FILES[@]}" \
     down -v --remove-orphans
+
+  exit "$status"
 }
 
 trap cleanup EXIT
