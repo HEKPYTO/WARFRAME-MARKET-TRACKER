@@ -1295,7 +1295,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
       "Remove rule",
     );
     await expect(page.getByTestId("market-panel")).toContainText(
-      "arcane_barrier",
+      "Arcane Barrier",
     );
   });
 
@@ -2168,7 +2168,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await page.goto("/");
 
     const marketPanel = page.getByTestId("market-panel");
-    await expect(marketPanel).toContainText("arcane_barrier");
+    await expect(marketPanel).toContainText("Arcane Barrier");
 
     const dragSource = page.locator(
       '[data-rule-slug="primed_continuity"] [data-testid^="watchlist-rule-drag-surface-"]',
@@ -2177,7 +2177,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await expect(dragSource).toBeVisible();
     await dragSource.dragTo(marketPanel);
 
-    await expect(marketPanel).toContainText("primed_continuity");
+    await expect(marketPanel).toContainText("Primed Continuity");
   });
 
   test("shows a confirmation dialog before deleting a rule", async ({
@@ -2337,10 +2337,10 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await expect(deleteTooltip).toHaveText("Delete alert");
 
     await page.getByText("Primed Continuity").click();
-    await expect(marketPanel).toContainText("primed_continuity");
+    await expect(marketPanel).toContainText("Primed Continuity");
 
     await viewButton.click();
-    await expect(marketPanel).toContainText("arcane_barrier");
+    await expect(marketPanel).toContainText("Arcane Barrier");
     await expect(alertsPanel).toContainText("Arcane Barrier");
 
     const [marketPopup] = await Promise.all([
@@ -3011,7 +3011,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
       .click();
 
     await expect(page.getByTestId("market-panel")).toContainText(
-      "primed_continuity",
+      "Primed Continuity",
     );
     await expect
       .poll(() => ({
@@ -3080,7 +3080,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     await page.goto(`/?ruleId=${secondRule.id}`);
 
     await expect(page.getByTestId("market-panel")).toContainText(
-      "primed_continuity",
+      "Primed Continuity",
     );
     await expect
       .poll(() => ({
@@ -3620,6 +3620,7 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await page.getByTestId("panel-toggle-rules").click();
     await page.locator('input[name="itemSlug"]').fill("arcane_barrier");
+    await page.getByTestId("item-search-option-0").click();
     await page.locator('input[name="maxPlatinum"]').fill("10");
     await page.locator('button[type="submit"]').click();
 
