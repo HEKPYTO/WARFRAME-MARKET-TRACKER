@@ -1,0 +1,14 @@
+{
+  "name": "@warframe-market-tracker/market-client",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@warframe-market-tracker/alert-engine": "workspace:*"
+  }
+}

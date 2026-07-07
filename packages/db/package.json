@@ -1,0 +1,16 @@
+{
+  "name": "@warframe-market-tracker/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@warframe-market-tracker/alert-engine": "workspace:*",
+    "drizzle-orm": "^0.41.0",
+    "postgres": "^3.4.5"
+  }
+}

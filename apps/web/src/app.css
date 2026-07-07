@@ -1,0 +1,145 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Fira Code", monospace;
+
+  --color-app: var(--theme-app);
+  --color-panel: var(--theme-panel);
+  --color-editor: var(--theme-editor);
+  --color-surface: var(--theme-surface);
+  --color-hover: var(--theme-hover);
+  --color-active: var(--theme-active);
+  --color-border: var(--theme-border);
+  --color-border-strong: var(--theme-border-strong);
+
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+
+  --color-accent-gold: var(--theme-accent-gold);
+  --color-accent-teal: var(--theme-accent-teal);
+  --color-accent-danger: var(--theme-accent-danger);
+}
+
+:root {
+  color-scheme: dark;
+  --theme-app: #06080a;
+  --theme-panel: #0a0c10;
+  --theme-editor: #11141a;
+  --theme-surface: #181c24;
+  --theme-hover: rgba(197, 168, 105, 0.08);
+  --theme-active: rgba(197, 168, 105, 0.12);
+  --theme-border: rgba(197, 168, 105, 0.15);
+  --theme-border-strong: rgba(197, 168, 105, 0.3);
+  --theme-text-primary: #e2e8f0;
+  --theme-text-secondary: #94a3b8;
+  --theme-text-muted: #64748b;
+  --theme-accent-gold: #c5a869;
+  --theme-accent-gold-foreground: #ffffff;
+  --theme-accent-teal: #65d5cb;
+  --theme-accent-danger: #ef4444;
+  --confirm-danger-bg: #2f1114;
+  --confirm-danger-border: #7f1d1d;
+  --confirm-danger-text: #fca5a5;
+  --confirm-danger-hover-bg: #4a171d;
+  --confirm-danger-hover-border: #991b1b;
+  --confirm-danger-hover-text: #fee2e2;
+  --worker-health-toast-bg: #2f1114;
+  --worker-health-toast-border: #7f1d1d;
+  --worker-health-toast-label: #fca5a5;
+  --worker-health-toast-text: #fff1f2;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --theme-app: #f1f5f9;
+  --theme-panel: #ffffff;
+  --theme-editor: #f8fafc;
+  --theme-surface: #ffffff;
+  --theme-hover: rgba(197, 168, 105, 0.15);
+  --theme-active: rgba(197, 168, 105, 0.25);
+  --theme-border: rgba(197, 168, 105, 0.4);
+  --theme-border-strong: rgba(197, 168, 105, 0.6);
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #334155;
+  --theme-text-muted: #64748b;
+  --theme-accent-gold: #b48c36;
+  --theme-accent-gold-foreground: var(--theme-app);
+  --theme-accent-teal: #0d9488;
+  --theme-accent-danger: #dc2626;
+  --confirm-danger-bg: #7f1d2d;
+  --confirm-danger-border: #991b1b;
+  --confirm-danger-text: #fff1f2;
+  --confirm-danger-hover-bg: #b91c1c;
+  --confirm-danger-hover-border: #be123c;
+  --confirm-danger-hover-text: #fff7f7;
+  --worker-health-toast-bg: #fff1f2;
+  --worker-health-toast-border: #fca5a5;
+  --worker-health-toast-label: #be123c;
+  --worker-health-toast-text: #881337;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100dvh;
+  height: 100%;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--theme-app);
+  color: var(--theme-text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--theme-surface);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.polling-ring {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: conic-gradient(
+    var(--polling-ring-color) calc(var(--polling-progress, 0) * 1turn),
+    color-mix(in srgb, var(--theme-border-strong) 80%, transparent) 0
+  );
+  display: inline-block;
+  transition: background 120ms linear;
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 0
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 0);
+}
+
+.confirm-dialog__danger-button {
+  background: var(--confirm-danger-bg);
+  border-color: var(--confirm-danger-border);
+  color: var(--confirm-danger-text);
+}
+
+.confirm-dialog__danger-button:hover,
+.confirm-dialog__danger-button:focus,
+.confirm-dialog__danger-button:focus-visible {
+  background: var(--confirm-danger-hover-bg);
+  border-color: var(--confirm-danger-hover-border);
+  color: var(--confirm-danger-hover-text);
+}

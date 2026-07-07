@@ -1,0 +1,21 @@
+{
+  "name": "@warframe-market-tracker/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./src/index.ts --target bun --outdir ./dist",
+    "dev": "bun run --watch ./src/index.ts",
+    "start": "bun ./dist/index.js",
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@chat-adapter/discord": "^4.21.0",
+    "@warframe-market-tracker/alert-engine": "workspace:*",
+    "@warframe-market-tracker/db": "workspace:*",
+    "@warframe-market-tracker/discord-client": "workspace:*",
+    "@warframe-market-tracker/discord-alerts": "workspace:*",
+    "@warframe-market-tracker/market-client": "workspace:*",
+    "@warframe-market-tracker/worker-health": "workspace:*",
+    "chat": "^4.21.0"
+  }
+}

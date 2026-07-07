@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["ES2023"],
+    "outDir": "dist",
+    "paths": {
+      "@warframe-market-tracker/alert-engine": [
+        "../../packages/alert-engine/src/index.ts"
+      ],
+      "@warframe-market-tracker/discord-client": [
+        "../../packages/discord-client/src/index.ts"
+      ],
+      "@warframe-market-tracker/db": ["../../packages/db/src/index.ts"],
+      "@warframe-market-tracker/market-client": [
+        "../../packages/market-client/src/index.ts"
+      ],
+      "@warframe-market-tracker/worker-health": [
+        "../../packages/worker-health/src/index.ts"
+      ]
+    },
+    "types": ["bun"]
+  },
+  "include": ["src/**/*.ts"]
+}

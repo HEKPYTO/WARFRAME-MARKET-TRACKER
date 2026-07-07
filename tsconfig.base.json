@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@warframe-market-tracker/alert-engine": [
+        "packages/alert-engine/src/index.ts"
+      ],
+      "@warframe-market-tracker/discord-client": [
+        "packages/discord-client/src/index.ts"
+      ],
+      "@warframe-market-tracker/discord-alerts": [
+        "packages/discord-alerts/src/index.ts"
+      ],
+      "@warframe-market-tracker/db": ["packages/db/src/index.ts"],
+      "@warframe-market-tracker/market-client": [
+        "packages/market-client/src/index.ts"
+      ],
+      "@warframe-market-tracker/worker-health": [
+        "packages/worker-health/src/index.ts"
+      ]
+    }
+  }
+}

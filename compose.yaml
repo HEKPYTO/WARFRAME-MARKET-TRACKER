@@ -1,0 +1,60 @@
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: warframe_market_tracker
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warframe_market_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro,z
+
+  web:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/web.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/warframe_market_tracker
+      APP_SECRETS_MASTER_KEY: ${APP_SECRETS_MASTER_KEY:-}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      HOST: 0.0.0.0
+      NODE_ENV: production
+      PORT: "3000"
+      TZ: Asia/Bangkok
+    ports:
+      - "3000:3000"
+
+  worker:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/worker.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/warframe_market_tracker
+      APP_SECRETS_MASTER_KEY: ${APP_SECRETS_MASTER_KEY:-}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      MARKET_API_BASE_URL: https://api.warframe.market/v2
+      MARKET_LANGUAGE: en
+      MARKET_PLATFORM: pc
+      MARKET_CROSSPLAY: "true"
+      WFM_REALTIME_ENABLED: ${WFM_REALTIME_ENABLED:-true}
+      NODE_ENV: production
+      TZ: Asia/Bangkok
+
+volumes:
+  postgres_data:

@@ -1,0 +1,82 @@
+name: warframe-market-tracker-prod
+
+services:
+  postgres:
+    restart: unless-stopped
+    container_name: market-track-postgres
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: warframe_market_tracker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warframe_market_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro,z
+
+  web:
+    restart: unless-stopped
+    container_name: market-track-web
+    build:
+      context: .
+      dockerfile: ./docker/web.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/warframe_market_tracker
+      APP_SECRETS_MASTER_KEY: ${APP_SECRETS_MASTER_KEY}
+      APP_BASE_URL: ${APP_BASE_URL}
+      HOST: 0.0.0.0
+      NODE_ENV: production
+      PORT: "3000"
+      TZ: Asia/Bangkok
+    networks:
+      - proxy
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.market.entrypoints=websecure"
+      - "traefik.http.routers.market.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.market.tls=true"
+      - "traefik.http.routers.market.tls.certresolver=cloudflare"
+      - "traefik.http.services.market.loadbalancer.server.port=3000"
+
+  worker:
+    restart: unless-stopped
+    container_name: market-track-worker
+    build:
+      context: .
+      dockerfile: ./docker/worker.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/warframe_market_tracker
+      APP_SECRETS_MASTER_KEY: ${APP_SECRETS_MASTER_KEY}
+      APP_BASE_URL: ${APP_BASE_URL}
+      MARKET_API_BASE_URL: https://api.warframe.market/v2
+      MARKET_LANGUAGE: en
+      MARKET_PLATFORM: pc
+      MARKET_CROSSPLAY: "true"
+      WFM_REALTIME_ENABLED: ${WFM_REALTIME_ENABLED:-true}
+      NODE_ENV: production
+      TZ: Asia/Bangkok
+    networks:
+      - backend
+
+networks:
+  proxy:
+    external: true
+  backend:
+    driver: bridge
+
+volumes:
+  postgres_prod_data:
