@@ -125,12 +125,17 @@ async function saveEnabledDiscordSettings(request: APIRequestContext) {
 
 async function selectItemByKeyboard(page: Page, query: string) {
   const input = page.locator('input[name="itemSlug"]');
+  const expectedName = query
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 
   await input.fill(query);
   await expect(page.getByTestId("item-search-option-0")).toBeVisible();
   await input.press("ArrowDown");
   await input.press("Enter");
   await expect(page.getByTestId("item-search-listbox")).toBeHidden();
+  await expect(input).toHaveValue(expectedName);
 }
 
 test.describe("Warframe Market Tracker Dashboard", () => {
