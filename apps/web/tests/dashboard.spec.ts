@@ -110,6 +110,19 @@ function createWorkerHealthMeta(input: {
   };
 }
 
+type TestWatchRule = {
+  createdAt: string;
+  crossplay: boolean;
+  enabled: boolean;
+  id: string;
+  itemSlug: string;
+  maxPlatinum: number;
+  platform: string;
+  sortOrder: number;
+  updatedAt: string;
+  userId: string;
+};
+
 async function saveEnabledDiscordSettings(request: APIRequestContext) {
   const response = await request.put("/api/settings", {
     data: {
@@ -140,6 +153,93 @@ async function selectItemByKeyboard(page: Page, query: string) {
 
 async function openRuleBySlug(page: Page, itemSlug: string) {
   await page.locator(`[data-rule-slug="${itemSlug}"]`).click();
+}
+
+async function trackWatchRuleWrites(
+  page: Page,
+  rulesById: Record<string, TestWatchRule>,
+) {
+  await page.route("**/api/watch-rules", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const rule = (await response.json()) as TestWatchRule;
+    rulesById[rule.id] = rule;
+
+    await route.fulfill({
+      body: JSON.stringify(rule),
+      contentType: "application/json",
+      response,
+    });
+  });
+
+  await page.route("**/api/watch-rules/**", async (route) => {
+    if (route.request().method() !== "PATCH") {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const ruleId = new URL(route.request().url()).pathname
+      .split("/")
+      .filter(Boolean)
+      .at(-1);
+    const patch = route.request().postDataJSON() as Partial<TestWatchRule>;
+
+    if (ruleId && rulesById[ruleId]) {
+      rulesById[ruleId] = {
+        ...rulesById[ruleId],
+        ...patch,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    await route.fulfill({ response });
+  });
+}
+
+async function mockRuleWorkspaces(
+  page: Page,
+  rulesById: Record<string, TestWatchRule>,
+) {
+  await page.route("**/api/workspace/**", async (route) => {
+    const ruleId = new URL(route.request().url()).pathname
+      .split("/")
+      .filter(Boolean)
+      .at(-1);
+    const rule = (ruleId && rulesById[ruleId]) || Object.values(rulesById)[0];
+
+    if (!rule) {
+      await route.fulfill({
+        body: JSON.stringify({ error: "Rule not found" }),
+        contentType: "application/json",
+        status: 404,
+      });
+      return;
+    }
+
+    const order = createWorkspaceSellOrder({
+      id: `${rule.itemSlug}-order-1`,
+      ingameName: `${rule.itemSlug}_seller`,
+      platinum: Math.max(rule.maxPlatinum, 1),
+      status: "ingame",
+    });
+
+    await route.fulfill({
+      body: JSON.stringify({
+        marketTop: [order],
+        offlineOrders: [],
+        onlineOrders: [order],
+        rule,
+        setPricing: null,
+      }),
+      contentType: "application/json",
+      status: 200,
+    });
+  });
 }
 
 test.describe("Warframe Market Tracker Dashboard", () => {
@@ -1298,6 +1398,10 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   });
 
   test("can create a new rule and view market data", async ({ page }) => {
+    const rulesById: Record<string, TestWatchRule> = {};
+
+    await trackWatchRuleWrites(page, rulesById);
+    await mockRuleWorkspaces(page, rulesById);
     await page.goto("/");
 
     const priceInput = page.locator('input[name="maxPlatinum"]');
@@ -1324,6 +1428,10 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   });
 
   test("links the active item header to Warframe Market", async ({ page }) => {
+    const rulesById: Record<string, TestWatchRule> = {};
+
+    await trackWatchRuleWrites(page, rulesById);
+    await mockRuleWorkspaces(page, rulesById);
     await page.goto("/");
 
     await selectItemByKeyboard(page, "arcane_barrier");
@@ -2019,6 +2127,10 @@ test.describe("Warframe Market Tracker Dashboard", () => {
   test("can update a tracked rule threshold without deleting it", async ({
     page,
   }) => {
+    const rulesById: Record<string, TestWatchRule> = {};
+
+    await trackWatchRuleWrites(page, rulesById);
+    await mockRuleWorkspaces(page, rulesById);
     await page.goto("/");
 
     await selectItemByKeyboard(page, "arcane_barrier");
@@ -2191,6 +2303,13 @@ test.describe("Warframe Market Tracker Dashboard", () => {
     });
     await expect(secondRuleResponse).toBeOK();
 
+    const firstRule = (await firstRuleResponse.json()) as TestWatchRule;
+    const secondRule = (await secondRuleResponse.json()) as TestWatchRule;
+
+    await mockRuleWorkspaces(page, {
+      [firstRule.id]: firstRule,
+      [secondRule.id]: secondRule,
+    });
     await page.goto("/");
 
     const marketPanel = page.getByTestId("market-panel");
@@ -2328,6 +2447,22 @@ test.describe("Warframe Market Tracker Dashboard", () => {
 
     await expect(createRuleResponse).toBeOK();
 
+    const dashboardResponse = await request.get("/api/dashboard");
+    await expect(dashboardResponse).toBeOK();
+
+    const dashboard = (await dashboardResponse.json()) as {
+      rules: TestWatchRule[];
+    };
+    const primedRule = (await createRuleResponse.json()) as TestWatchRule;
+    const arcaneRule = dashboard.rules.find(
+      (rule) => rule.itemSlug === "arcane_barrier",
+    );
+
+    expect(arcaneRule).toBeDefined();
+    await mockRuleWorkspaces(page, {
+      [arcaneRule!.id]: arcaneRule!,
+      [primedRule.id]: primedRule,
+    });
     await page.goto("/");
 
     const alertsPanel = page.getByTestId("alerts-panel");
